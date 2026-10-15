@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: online-food-portal
-          image: balaji00002/online-food-portal:v1
+          image: balaji00002/online-food-portal:v2
           ports:
             - containerPort: 80
 ---

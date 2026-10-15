@@ -1,117 +1,238 @@
-```html
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Food Ordering Portal</title>
+    <title>FreshBite | Online Food Ordering Portal</title>
+
     <style>
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            color: #263238;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f3f5f8;
+            color: #222;
+            line-height: 1.6;
         }
+
         header {
-            background: #b83227;
+            background-color: #b83227;
             color: white;
-            padding: 25px;
             text-align: center;
+            padding: 25px 15px;
         }
-        .offers {
-            background: #fff0d8;
-            padding: 16px;
+
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        header p {
+            margin: 5px 0 0;
+        }
+
+        .offer-banner {
+            background-color: #fff0d5;
+            color: #713b00;
             text-align: center;
+            padding: 10px;
             font-weight: bold;
         }
+
+        .release-banner {
+            max-width: 900px;
+            margin: 25px auto 0;
+            padding: 22px;
+            background: #e1f5e8;
+            border: 2px solid #23844c;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .release-banner h2 {
+            color: #176638;
+            margin: 0 0 8px;
+        }
+
+        .release-banner p {
+            margin: 0;
+        }
+
         main {
-            max-width: 1000px;
-            margin: 25px auto;
-            padding: 0 16px;
+            width: 90%;
+            max-width: 900px;
+            margin: 20px auto 35px;
         }
-        .section {
-            background: white;
+
+        .card {
+            background-color: white;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             border-radius: 10px;
-            box-shadow: 0 2px 8px #00000012;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
-        .menu {
+
+        .card h2 {
+            margin-top: 0;
+            font-size: 22px;
+            color: #252525;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+
+        .categories {
+            color: #444;
+            font-weight: bold;
+        }
+
+        .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
         }
-        .food {
+
+        .food-item {
             border: 1px solid #ddd;
             border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+        }
+
+        .food-item h3 {
+            margin: 0 0 8px;
+            font-size: 17px;
+        }
+
+        .food-item p {
+            margin: 5px 0;
+        }
+
+        .price {
+            color: #b83227;
+            font-weight: bold;
+        }
+
+        .available {
+            color: #16833c;
+            font-weight: bold;
+        }
+
+        .unavailable {
+            color: #c62828;
+            font-weight: bold;
+        }
+
+        .offers li {
+            margin-bottom: 5px;
+        }
+
+        .contact a {
+            color: #b83227;
+            text-decoration: none;
+        }
+
+        footer {
+            background: #242424;
+            color: white;
+            text-align: center;
             padding: 16px;
         }
-        .price { color: #b83227; font-weight: bold; }
-        .available { color: green; }
-        .unavailable { color: #b83227; }
-        footer {
-            background: #263238;
-            color: white;
-            padding: 20px;
-            text-align: center;
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 24px;
+            }
+
+            main {
+                width: 94%;
+            }
+
+            .card {
+                padding: 15px;
+            }
         }
     </style>
 </head>
+
 <body>
+
     <header>
         <h1>FreshBite Online Food Ordering</h1>
         <p>Vellore | Fresh food delivered to your doorstep</p>
     </header>
 
-    <div class="offers">
+    <div class="offer-banner">
         Special Offer: Get 10% off orders above ₹300!
     </div>
 
+    <section class="release-banner">
+        <h2>🚀 FreshBite — New Release v2</h2>
+        <p>
+            Our latest release is live! Enjoy fresh food, special offers,
+            and an improved browsing experience.
+        </p>
+        <p><strong>Release Version:</strong> v2</p>
+    </section>
+
     <main>
-        <section class="section">
+
+        <section class="card details">
             <h2>Restaurant Details</h2>
             <p><strong>Restaurant:</strong> FreshBite Restaurant</p>
             <p><strong>Location:</strong> Vellore, Tamil Nadu</p>
             <p><strong>Opening Hours:</strong> 9:00 AM – 10:00 PM</p>
         </section>
 
-        <section class="section">
+        <section class="card">
             <h2>Food Categories</h2>
-            <p>South Indian | North Indian | Snacks | Beverages</p>
+            <p class="categories">
+                South Indian | North Indian | Snacks | Beverages
+            </p>
         </section>
 
-        <section class="section">
+        <section class="card">
             <h2>Our Menu</h2>
-            <div class="menu">
-                <div class="food">
+
+            <div class="menu-grid">
+
+                <article class="food-item">
                     <h3>Masala Dosa</h3>
                     <p>Category: South Indian</p>
                     <p class="price">₹90</p>
                     <p class="available">Available</p>
-                </div>
-                <div class="food">
+                </article>
+
+                <article class="food-item">
                     <h3>Veg Fried Rice</h3>
                     <p>Category: Chinese</p>
                     <p class="price">₹150</p>
                     <p class="available">Available</p>
-                </div>
-                <div class="food">
+                </article>
+
+                <article class="food-item">
                     <h3>Paneer Biryani</h3>
                     <p>Category: Main Course</p>
                     <p class="price">₹180</p>
                     <p class="available">Available</p>
-                </div>
-                <div class="food">
+                </article>
+
+                <article class="food-item">
                     <h3>Chocolate Milkshake</h3>
                     <p>Category: Beverages</p>
                     <p class="price">₹100</p>
                     <p class="unavailable">Currently Unavailable</p>
-                </div>
+                </article>
+
             </div>
         </section>
 
-        <section class="section">
+        <section class="card offers">
             <h2>Promotional Offers</h2>
             <ul>
                 <li>10% discount on orders above ₹300.</li>
@@ -120,17 +241,23 @@
             </ul>
         </section>
 
-        <section class="section">
+        <section class="card contact">
             <h2>Contact Information</h2>
-            <p>Email: support@freshbite.example</p>
-            <p>Phone: +91 98765 43210</p>
+            <p>
+                <strong>Email:</strong>
+                <a href="mailto:support@freshbite.example">
+                    support@freshbite.example
+                </a>
+            </p>
+            <p><strong>Phone:</strong> +91 98765 43210</p>
         </section>
+
     </main>
 
     <footer>
-        <p>FreshBite Online Food Ordering Portal</p>
-        <p>Version 1 — Initial Release</p>
+        <p>&copy; 2026 FreshBite Restaurant. All rights reserved.</p>
+        <p>Online Food Ordering Portal | Release v2</p>
     </footer>
+
 </body>
 </html>
-```

@@ -1,32 +1,24 @@
+
 pipeline {
     agent any
-
-    environment {
-        DOCKER = 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe'
-        KUBECTL = 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe'
-        KUBE_CONFIG = 'C:\\ProgramData\\Jenkins\\.kube\\config'
-        IMAGE_NAME = 'balaji00002/online-food-portal'
-        IMAGE_TAG = 'v1'
-        DEPLOYMENT_NAME = 'online-food-portal'
-        SERVICE_NAME = 'online-food-portal-service'
-    }
 
     stages {
         stage('Clone Code') {
             steps {
+                echo 'Getting source code from GitHub'
                 checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat '"%DOCKER%" build -t %IMAGE_NAME%:%IMAGE_TAG% .'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" build -t balaji00002/online-food-portal:v1 .'
             }
         }
 
         stage('Test Docker Image') {
             steps {
-                bat '"%DOCKER%" image inspect %IMAGE_NAME%:%IMAGE_TAG%'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" images balaji00002/online-food-portal:v1'
             }
         }
 
@@ -39,51 +31,42 @@ pipeline {
                         passwordVariable: 'DOCKER_PASSWORD'
                     )
                 ]) {
-                    powershell '''
-                        $ErrorActionPreference = "Stop"
-                        $env:DOCKER_PASSWORD | & $env:DOCKER login -u $env:DOCKER_USERNAME --password-stdin
-                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-                        & $env:DOCKER push "$env:IMAGE_NAME`:$env:IMAGE_TAG"
-                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-                        & $env:DOCKER logout
-                    '''
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" login -u "%DOCKER_USERNAME%" -p "%DOCKER_PASSWORD%"'
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" push balaji00002/online-food-portal:v1'
+                    bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe" logout'
                 }
             }
         }
 
         stage('Check Kubernetes') {
             steps {
-                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get nodes'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" config current-context'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" get nodes'
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" apply -f deployment.yaml'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" apply -f deployment.yaml'
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" rollout status deployment/%DEPLOYMENT_NAME% --timeout=120s'
-                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get deployment'
-                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get pods'
-                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get services'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" rollout status deployment/online-food-portal'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" get deployments'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" get pods'
+                bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" get services'
             }
         }
     }
 
     post {
         success {
-            echo 'Online Food Ordering Portal pipeline completed successfully.'
+            echo 'CI/CD pipeline completed successfully!'
         }
         failure {
-            echo 'Pipeline failed. Check Console Output for the first failed stage.'
-        }
-        always {
-            echo 'Pipeline execution finished.'
+            echo 'Pipeline failed. Check the first failed stage in Console Output.'
         }
     }
 }

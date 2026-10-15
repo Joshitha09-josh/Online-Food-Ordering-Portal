@@ -1,30 +1,39 @@
-
+```groovy
 pipeline {
     agent any
 
     environment {
         DOCKER = 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\docker.exe'
         KUBECTL = 'C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe'
-        IMAGE = 'balaji00002/online-food-portal:v1'
+        KUBE_CONFIG = 'C:\\ProgramData\\Jenkins\\.kube\\config'
+
+        IMAGE_NAME = 'balaji00002/online-food-portal'
+        IMAGE_TAG = 'v1'
+
+        DEPLOYMENT_NAME = 'online-food-portal'
+        CONTAINER_NAME = 'online-food-portal'
+        SERVICE_NAME = 'online-food-portal-service'
     }
 
     stages {
+
         stage('Clone Code') {
             steps {
-                echo 'Repository checkout completed by Jenkins SCM configuration'
-                bat 'dir'
+                echo 'Cloning Online Food Ordering Portal from GitHub'
+                checkout scm
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat '"%DOCKER%" build -t %IMAGE% .'
+                bat '"%DOCKER%" build -t %IMAGE_NAME%:%IMAGE_TAG% .'
             }
         }
 
         stage('Test Docker Image') {
             steps {
-                bat '"%DOCKER%" image inspect %IMAGE%'
+                bat '"%DOCKER%" image inspect %IMAGE_NAME%:%IMAGE_TAG%'
+                echo 'Docker image build test passed'
             }
         }
 
@@ -33,43 +42,68 @@ pipeline {
                 withCredentials([
                     usernamePassword(
                         credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_TOKEN'
+                        usernameVariable: 'DOCKER_USERNAME',
+                        passwordVariable: 'DOCKER_PASSWORD'
                     )
                 ]) {
                     bat '''
-                        echo %DOCKER_TOKEN% | "%DOCKER%" login -u %DOCKER_USER% --password-stdin
-                        if errorlevel 1 exit /b 1
-                        "%DOCKER%" push %IMAGE%
-                        if errorlevel 1 exit /b 1
-                        "%DOCKER%" logout
+                        "%DOCKER%" login -u "%DOCKER_USERNAME%" --password-stdin < nul
+                    '''
+                    powershell '''
+                        $env:DOCKER_PASSWORD | & $env:DOCKER "login" "-u" $env:DOCKER_USERNAME "--password-stdin"
+                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                        & $env:DOCKER "push" "$env:IMAGE_NAME" + ":" + "$env:IMAGE_TAG"
+                        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+                        & $env:DOCKER "logout"
                     '''
                 }
             }
         }
 
+        stage('Check Kubernetes') {
+            steps {
+                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get nodes'
+            }
+        }
+
         stage('Deploy to Kubernetes') {
-    steps {
-        bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" apply --validate=false -f deployment.yaml'
-    }
-}
+            steps {
+                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" apply -f deployment.yaml'
+            }
+        }
 
         stage('Verify Deployment') {
             steps {
-                bat '"%KUBECTL%" rollout status deployment/online-food-portal --timeout=120s'
-                bat '"%KUBECTL%" get deployment online-food-portal'
-                bat '"%KUBECTL%" get pods'
-                bat '"%KUBECTL%" get service online-food-portal-service'
+                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" rollout status deployment/%DEPLOYMENT_NAME% --timeout=120s'
+                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get deployment'
+                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get pods'
+                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get services'
+            }
+        }
+
+        stage('Check Application Endpoint') {
+            steps {
+                bat '"%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" get service %SERVICE_NAME%'
+                echo 'Open http://localhost:30084 to verify the application, provided the Service uses NodePort 30084.'
             }
         }
     }
 
     post {
         success {
-            echo 'Online Food Ordering pipeline completed successfully.'
+            echo 'Online Food Ordering Portal pipeline completed successfully.'
         }
+
         failure {
-            echo 'Pipeline failed. Check the first failed stage in Console Output.'
+            echo 'Pipeline failed. Checking whether the deployment needs rollback.'
+            bat '''
+                "%KUBECTL%" --kubeconfig="%KUBE_CONFIG%" rollout undo deployment/%DEPLOYMENT_NAME%
+            '''
+        }
+
+        always {
+            echo 'Pipeline execution finished.'
         }
     }
 }
+```

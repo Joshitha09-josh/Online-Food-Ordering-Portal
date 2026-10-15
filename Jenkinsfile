@@ -49,10 +49,10 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            steps {
-                bat '"%KUBECTL%" apply -f deployment.yaml'
-            }
-        }
+    steps {
+        bat '"C:\\Program Files\\Docker\\Docker\\resources\\bin\\kubectl.exe" apply --validate=false -f deployment.yaml'
+    }
+}
 
         stage('Verify Deployment') {
             steps {
